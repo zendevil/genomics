@@ -1,1 +1,7 @@
 *.npy
+single
+triple
+normal_noise
+*.gz
+*.pdf
+*~
