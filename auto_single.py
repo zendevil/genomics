@@ -16,16 +16,10 @@ encoding_dim = 32  # 32 floats -> compression of factor 24.5, assuming the input
 input_profile = Input(shape=(943,))
 # "encoded" is the encoded representation of the input
 
-encoded = Dense(128, activation='relu', #activity_regularizer=regularizers.l1(10e-5)
+encoded = Dense(encoding_dim, activation='relu', activity_regularizer=regularizers.l1(10e-5)
 )(input_profile)
-encoded = Dense(64, activation='relu', #activity_regularizer=regularizers.l1(10e-5)
-)(encoded)
-encoded = Dense(32, activation='relu', # activity_regularizer=regularizers.l1(10e-5)
-)(encoded)
 # "decoded" is the lossy reconstruction of the input
-decoded = Dense(64, activation='sigmoid')(encoded)
-decoded = Dense(128, activation='sigmoid')(decoded)
-decoded = Dense(943, activation='sigmoid')(decoded)
+decoded = Dense(943, activation='sigmoid')(encoded)
 
 # this model maps an input to its reconstruction
 autoencoder = Model(input_profile, decoded)
@@ -119,7 +113,7 @@ for r in range(0,11): # noise ratio
 print(MSE)
 
 
-g = open('./normal_noise/triple/graphs.tex', 'a')
+g = open('./normal_noise/single_act/graphs.tex', 'a')
 g.write('\\documentclass{article}\n\
 \\usepackage{tikz}\n\
 \\usepackage{pgfplots}\n\
@@ -128,7 +122,7 @@ g.write('\\documentclass{article}\n\
 \\usepackage{tabu}\n\
 \\usepackage{numprint}\n\
 \\begin{document}')
-t = open('./normal_noise/triple/'+'tables.tex', 'a')
+t = open('./normal_noise/single_act/'+'tables.tex', 'a')
 t.write('\\documentclass{article}\n\
 \\usepackage{tikz}\n\
 \\usepackage{pgfplots}\n\

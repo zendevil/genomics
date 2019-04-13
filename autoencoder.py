@@ -1,5 +1,5 @@
 #TODO
-# combine x and y train for autoencoder.
+
 # shuffle data when training
 # make test data
 
@@ -20,24 +20,27 @@ encoded = Dense(128, activation='relu', #activity_regularizer=regularizers.l1(10
 )(input_profile)
 encoded = Dense(64, activation='relu', #activity_regularizer=regularizers.l1(10e-5)
 )(encoded)
-encoded = Dense(32, activation='relu', activity_regularizer=regularizers.l1(10e-5))(encoded)
+encoded = Dense(32, activation='relu', # activity_regularizer=regularizers.l1(10e-5)
+)(encoded)
 # "decoded" is the lossy reconstruction of the input
 decoded = Dense(64, activation='sigmoid')(encoded)
-decoded = Dense(128, activation='sigmoid')(encoded)
-decoded = Dense(943, activation='sigmoid')(encoded)
+decoded = Dense(128, activation='sigmoid')(decoded)
+decoded = Dense(943, activation='sigmoid')(decoded)
 
 # this model maps an input to its reconstruction
 autoencoder = Model(input_profile, decoded)
 
 # this model maps an input to its encoded representation
-encoder = Model(input_profile, encoded)
+# encoder = Model(input_profile, encoded)
 
-# create a placeholder for an encoded (32-dimensional) input
-encoded_input = Input(shape=(encoding_dim,))
-# retrieve the last layer of the autoencoder model
-decoder_layer = autoencoder.layers[-1]
-# create the decoder model
-decoder = Model(encoded_input, decoder_layer(encoded_input))
+# # create a placeholder for an encoded (32-dimensional) input
+# encoded_input = Input(shape=(encoding_dim,))
+# # retrieve the last layer of the autoencoder model
+
+# decoder_layer = autoencoder.layers[-1]
+
+# # create the decoder model
+# decoder = Model(encoded_input, decoder_layer(encoded_input))
 
 autoencoder.compile(optimizer='adadelta', loss='mean_squared_error')
 
@@ -72,16 +75,19 @@ Y_GTEx = np.load('GTEx_Y_0-4760_float64.npy')
 x_test = Y_GTEx
 
 def write_g_prefix(g, data, noise_ratio):
-    diff = max(data) - min(data)
+    max_ = max(data)
+    min_ = min(data)
+
+    diff = max_ - min_
     g.write('\\begin{tikzpicture}\n')
     g.write('\\begin{axis}[\n')
     g.write('title={Sample size of training data plotted against accuracy at '+str(noise_ratio)+' noise ratio},\n')
     g.write('xlabel={Number of Samples},\n')
     g.write('ylabel={Mean Square Error between all original and denoised samples},\n')
     g.write('xmin=0, xmax=3000,\n')
-    g.write('ymin=0, ymax='+str(max(data))+',\n')
+    g.write('ymin='+str(min_)+', ymax='+str(max_)+',\n')
     g.write('xtick={0,500,1000,1500,2000,2500,3000},\n')
-    g.write('ytick={'+str(0)+','+str(1*diff)+','+str(2*diff)+','+str(3*diff)+','+str(4*diff)+','+str(5*diff)+','+str(6*diff)+','+str(7*diff)+','+str(8*diff)+','+str(9*diff)+','+str(10*diff)+'},\n')
+    g.write('ytick={'+str(min_)+','+str(min_+1*diff)+','+str(min_+2*diff)+','+str(min_+3*diff)+','+str(min_+4*diff)+','+str(min_+5*diff)+','+str(min_+6*diff)+','+str(min_+7*diff)+','+str(min_+8*diff)+','+str(min_+9*diff)+','+str(min_+10*diff)+'},\n')
     g.write('legend pos=north west,\n')
     g.write('ymajorgrids=true,\n')
     g.write('grid style=dashed,\n')
@@ -118,24 +124,43 @@ for r in range(0,11): # noise ratio
     MSE.append([])
     for s in range(1,11): # samples
         samples_ratio = s * 0.1
-        samples = int((samples_ratio)*len(X_GTEx))
+        samples = int(samples_ratio*len(X_GTEx))
         x_train = x_train[:samples]
+        x_test = x_train
         x_noisy = x_noisy[:samples]
         print('x_train shape', x_train.shape)
         print('x_noisy shape', x_noisy.shape)
-        autoencoder.fit(x_noisy, x_train, epochs=50, batch_size=256, shuffle=True, validation_data=(x_train, x_train))
-        # note that we take them from the *test* set
-        encoded_profile = encoder.predict(x_train)
-        decoded_profile = decoder.predict(encoded_profile)
-        mse = ((x_train - decoded_profile)**2).mean(axis=None)
+        autoencoder.fit(x_noisy, x_train, epochs=50, batch_size=256, shuffle=True, validation_data=(x_test, x_test))
+        # note that we take them from the train set
+        # encoded_profile = encoder.predict(x_train)
+        decoded_profile = autoencoder.predict(x_train)
+        mse = ((x_train - decoded_profile)**2).mean(axis=None)/samples
         MSE[r].append(mse)
-        print('noise =',noise_ratio, 'samples =',samples,'normalized mse =',mse/samples)
+        print('noise =',noise_ratio, 'samples =',samples,'normalized mse =',mse)
 print(MSE)
 
+
+g = open('./uniform_noise/triple/graphs.tex', 'a')
+g.write('\\documentclass{article}\n\
+\\usepackage{tikz}\n\
+\\usepackage{pgfplots}\n\
+\\usepackage{textcomp}\n\
+\\usepackage{array}\n\
+\\usepackage{tabu}\n\
+\\usepackage{numprint}\n\
+\\begin{document}')
+t = open('./uniform_noise/triple/'+'tables.tex', 'a')
+t.write('\\documentclass{article}\n\
+\\usepackage{tikz}\n\
+\\usepackage{pgfplots}\n\
+\\usepackage{textcomp}\n\
+\\usepackage{array}\n\
+\\usepackage{tabu}\n\
+\\usepackage{numprint}\n\
+\\begin{document}')
 for r in range(0,11):
     noise_ratio = r * 0.1
-    g = open('./normal_noise/triple/'+str(noise_ratio)+'_g.txt', 'a')
-    t = open('./normal_noise/triple/'+str(noise_ratio)+'_t.txt', 'a')
+    
     write_g_prefix(g, MSE[r], noise_ratio) # passing in M[r] to 
     write_t_prefix(t) # calculate ticks. 
     for s in range(1,11):
@@ -145,8 +170,14 @@ for r in range(0,11):
         t.write(str(samples)+' & '+str(MSE[r][s-1]) +'\\'+'\\' + '\n'+'\hline\n')
     write_g_suffix(g)
     write_t_suffix(t)
-    g.close()
-    t.close()
+
+
+g.write('\n\
+\\end{document}\n')
+t.write('\\end{document}')
+    
+g.close()
+t.close()
 
 # print('max', np.amax(encoded_profile))
 # print('min', np.amin(encoded_profile))
