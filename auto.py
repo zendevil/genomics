@@ -50,16 +50,19 @@ Y_GTEx = np.load('GTEx_Y_0-4760_float64.npy')
 x_test = Y_GTEx
 
 def write_g_prefix(g, data, noise_ratio):
-    diff = max(data) - min(data)
+    max_ = max(data)
+    min_ = min(data)
+
+    diff = max_ - min_
     g.write('\\begin{tikzpicture}\n')
     g.write('\\begin{axis}[\n')
     g.write('title={Sample size of training data plotted against accuracy at '+str(noise_ratio)+' noise ratio},\n')
     g.write('xlabel={Number of Samples},\n')
     g.write('ylabel={Mean Square Error between all original and denoised samples},\n')
     g.write('xmin=0, xmax=3000,\n')
-    g.write('ymin=0, ymax='+str(max(data))+',\n')
+    g.write('ymin='+str(min_)+', ymax='+str(max_)+',\n')
     g.write('xtick={0,500,1000,1500,2000,2500,3000},\n')
-    g.write('ytick={'+str(0)+','+str(1*diff)+','+str(2*diff)+','+str(3*diff)+','+str(4*diff)+','+str(5*diff)+','+str(6*diff)+','+str(7*diff)+','+str(8*diff)+','+str(9*diff)+','+str(10*diff)+'},\n')
+    g.write('ytick={'+str(min_)+','+str(min_+1*diff)+','+str(min_+2*diff)+','+str(min_+3*diff)+','+str(min_+4*diff)+','+str(min_+5*diff)+','+str(min_+6*diff)+','+str(min_+7*diff)+','+str(min_+8*diff)+','+str(min_+9*diff)+','+str(min_+10*diff)+'},\n')
     g.write('legend pos=north west,\n')
     g.write('ymajorgrids=true,\n')
     g.write('grid style=dashed,\n')
@@ -107,13 +110,13 @@ for r in range(0,11): # noise ratio
         decoded_profile = decoder.predict(encoded_profile)
         mse = ((x_train - decoded_profile)**2).mean(axis=None)
         MSE[r].append(mse)
-        print('noise =',noise_ratio, 'samples =',samples,'normalized mse =',mse/samples)
+        print('noise =',noise_factor, 'samples =',samples,'normalized mse =',mse/samples)
 print(MSE)
 
 for r in range(0,11):
     noise_factor = r * 0.1
-    g = open('./single/'+str(noise_factor)+'_g.txt', 'a')
-    t = open('./single'+str(noise_factor)+'_t.txt', 'a')
+    g = open('./normal_noise/triple/'+str(noise_factor)+'_g.txt', 'a')
+    t = open('./normal_noise/triple/'+str(noise_factor)+'_t.txt', 'a')
     write_g_prefix(g, MSE[r], noise_factor) # passing in M[r] to 
     write_t_prefix(t) # calculate ticks. 
     for s in range(1,11):
