@@ -42,7 +42,7 @@ def autoencoder_num_layers(n_encoder_layers, n_decoder_layers):
     print_model_layers(model)
     return model
 
-def calc_mse_all_sample_sizes(x_train, noise_factor):
+def calc_mse_all_sample_sizes(autoencoder, x_train, noise_factor):
     x_noisy = x_train + noise_factor *\
             np.random.normal(loc=0.0, scale=1.0, size=x_train.shape)
     mse_across_sample_sizes = []
@@ -77,7 +77,7 @@ for i in range(1,5):
 
     for r in range(0,11): # noise factor
         noise_factor = r * 0.1
-        MSE.append(calc_mse_all_sample_sizes(x_train, noise_factor))        
+        MSE.append(calc_mse_all_sample_sizes(autoencoder, x_train, noise_factor))        
             
     np.save('./data/noise/'+str(n_encoder_layers)+'_'+str(n_decoder_layers)+'.npy', MSE)
     write_g_tex_file(MSE, './data/noise/'+str(n_encoder_layers)+'_'+str(n_decoder_layers)+'_g.tex', 'a')
