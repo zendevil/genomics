@@ -5,3 +5,5 @@ normal_noise
 *.gz
 *.pdf
 *~
+data
+__pycache__

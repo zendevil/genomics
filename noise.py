@@ -66,6 +66,17 @@ def calc_mse_all_sample_sizes(x_train, noise_factor):
     print('mse sample sizes', len(mse_across_sample_sizes))
     return mse_across_sample_sizes
 
+def calc_mse(x_train, noise_factor):
+    x_noisy = x_train + noise_factor *\
+            np.random.normal(loc=0.0, scale=1.0, size=x_train.shape)
+    autoencoder.fit(x_noisy, x_train, epochs=50, batch_size=256,\
+                        shuffle=True, validation_data=(x_train, x_train))
+
+    decoded_profile = autoencoder.predict(x_train)
+
+    mse = ((x_train - decoded_profile)**2).mean(axis=None)
+    return mse
+    
 for i in range(1,5):
     n_encoder_layers = i
     n_decoder_layers = i
@@ -77,8 +88,8 @@ for i in range(1,5):
 
     for r in range(0,11): # noise factor
         noise_factor = r * 0.1
-        MSE.append(calc_mse_all_sample_sizes(x_train, noise_factor))        
+        MSE.append(calc_mse(x_train, noise_factor))        
             
     np.save('./data/noise/'+str(n_encoder_layers)+'_'+str(n_decoder_layers)+'.npy', MSE)
-    write_g_tex_file(MSE, './data/noise/'+str(n_encoder_layers)+'_'+str(n_decoder_layers)+'_g.tex', 'a')
-    write_t_tex_file(MSE, './data/noise/'+str(n_encoder_layers)+'_'+str(n_decoder_layers)+'_t.tex', 'a')
+    write_g_tex_file_1D(MSE, './data/noise/'+str(n_encoder_layers)+'_'+str(n_decoder_layers)+'_g.tex', 'a')
+    write_t_tex_file_1D(MSE, './data/noise/'+str(n_encoder_layers)+'_'+str(n_decoder_layers)+'_t.tex', 'a')
