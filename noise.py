@@ -8,9 +8,9 @@ from keras.models import Model, Sequential
 from keras import regularizers
 import random
 from latex import *
-
-X_GTEx = np.load('GTEx_X_float64.npy')
-x_train = X_GTEx
+from keras.callbacks import TensorBoard
+x_train = np.load('train_l1000.npy')
+x_test = np.load('test_l1000.npy')
 
 def add_encoder(model, n):
     encoding_dim = 2**(5+n-1) # 
@@ -23,7 +23,7 @@ def add_encoder(model, n):
 def add_decoder(model, n):
     decoding_dim = 2**6    
     for l in range(n-1):
-        model.add(Dense(int(decoding_dim), activation='sigmoid'))
+        model.add(Dense(int(decoding_dim), activation='relu'))
         decoding_dim *= 2
     model.add(Dense(943, activation='sigmoid'))
     return model
@@ -41,19 +41,8 @@ def autoencoder_num_layers(n_encoder_layers, n_decoder_layers):
     print(type(model))
     print_model_layers(model)
     return model
-
-def calc_mse(autoencoder, x_train, noise_factor):
-    x_noisy = x_train + noise_factor *\
-            np.random.normal(loc=0.0, scale=1.0, size=x_train.shape)
-    autoencoder.fit(x_noisy, x_train, epochs=50, batch_size=256,\
-                        shuffle=True, validation_data=(x_train, x_train))
-
-    decoded_profile = autoencoder.predict(x_train)
-
-    mse = ((x_train - decoded_profile)**2).mean(axis=None)
-    return mse
     
-for i in range(1,5):
+for i in range(3,4):
     n_encoder_layers = i
     n_decoder_layers = i
     autoencoder = autoencoder_num_layers(n_encoder_layers, n_decoder_layers)
@@ -64,7 +53,18 @@ for i in range(1,5):
 
     for r in range(0,11): # noise factor
         noise_factor = r * 0.1
-        MSE.append(calc_mse(autoencoder, x_train, noise_factor))        
+        x_train_noisy = x_train + noise_factor *\
+        np.random.normal(loc=0.0, scale=1.0, size=x_train.shape)
+        x_test_noisy = x_test + noise_factor *\
+            np.random.normal(loc=0.0, scale=1.0, size=x_test.shape)
+        autoencoder.fit(x_train_noisy, x_train, epochs=10, batch_size=256,\
+                        shuffle=True, validation_data=(x_test_noisy, x_test),
+                        callbacks=[TensorBoard(log_dir='/tmp/tb', histogram_freq=0, write_graph=False)])
+
+        decoded_profile = autoencoder.predict(x_train)
+
+        mse = ((x_train - decoded_profile)**2).mean(axis=None)
+        MSE.append(mse)        
             
     np.save('./data/debugged_noise/'+str(n_encoder_layers)+'_'+str(n_decoder_layers)+'.npy', MSE)
     write_g_tex_file_1D(MSE, './data/debugged_noise/'+str(n_encoder_layers)+'_'+str(n_decoder_layers)+'_g.tex', 'a')

@@ -1,3 +1,4 @@
+
 import numpy as np
 X_GTEx = np.load('GTEx_X_float64.npy')
 def write_g_file_prefix(g):
@@ -31,7 +32,7 @@ def write_g_prefix(g, data# , noise_ratio
     g.write('ylabel={Mean Square Error between all original and denoised samples},\n')
     g.write('xmin=0, xmax=3000,\n')
     g.write('ymin='+str(min_)+', ymax='+str(max_)+',\n')
-    g.write('xtick={0,500,1000,1500,2000,2500,3000},\n')
+    g.write('xtick={},\n')
     g.write('ytick={'+str(min_)+','+str(min_+1*diff)+','+str(min_+2*diff)+','+str(min_+3*diff)+','+str(min_+4*diff)+','+str(min_+5*diff)+','+str(min_+6*diff)+','+str(min_+7*diff)+','+str(min_+8*diff)+','+str(min_+9*diff)+','+str(min_+10*diff)+'},\n')
     g.write('legend pos=north west,\n')
     g.write('ymajorgrids=true,\n')
