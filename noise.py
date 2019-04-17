@@ -57,9 +57,10 @@ for i in range(3,4):
         np.random.normal(loc=0.0, scale=1.0, size=x_train.shape)
         x_test_noisy = x_test + noise_factor *\
             np.random.normal(loc=0.0, scale=1.0, size=x_test.shape)
+        print('bw noisy and train',((x_train - x_train_noisy)**2).mean(axis=None) )
         autoencoder.fit(x_train_noisy, x_train, epochs=10, batch_size=256,\
                         shuffle=True, validation_data=(x_test_noisy, x_test),
-                        callbacks=[TensorBoard(log_dir='/tmp/tb', histogram_freq=0, write_graph=False)])
+                        callbacks=[TensorBoard(log_dir='./tmp/tb', histogram_freq=0, write_graph=True)])
 
         decoded_profile = autoencoder.predict(x_train)
 
