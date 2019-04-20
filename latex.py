@@ -55,7 +55,7 @@ def write_t_prefix(t):
 def write_g_suffix(g):
     g.write('    };\n')
     g.write('\\end{axis}\n')
-    g.write('\\end{tikzpicture}')
+    g.write('\\end{tikzpicture}\n')
 
 def write_t_suffix(t):
     t.write('\\end{tabu}\n')
