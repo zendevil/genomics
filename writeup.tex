@@ -23,28 +23,25 @@
 \section{Introduction}
 
 \section{Gene Expression}
-The abundance of spliced mRNA that is produced in a cell is referred to as the level of gene expression, which is a function of the rate of synthhesis of new mRNA and of its degradation.  \\
-Because RNA levels are tightly controlled, measuring the concentrations of RNA found at a particular time and in a specific cell or organ can provide important information as to the function of the genes that encode them. In addition, the profile of RNAs found in a particular cell can be used as a means of disease diagnosis. For example, different types of cancer have been shown to have different RNA profiles. \\
-Several different ways have been developed to deterine the RNA expression levels of all genes in the genome, called genome-wide expression analysis. \\
-The data used for this study was collected using RNA-Seq. \\
-The process o generating genome-wide information on RNA levels using sequencing is known as RNA-Seq. \\
+The amount of spliced mRNA that is produced in a cell is referred to as the level of gene expression, which is a function of the rate of synthesis of new mRNA and of its degradation. Gene expression is the process by which the genetic blueprint is translated into functional, biologically active units. This constellation of RNAs drives essential bilogical processes, such as transcriptional regulation, cellular differentialtion, and when dysregulated, the development of complex disease.\cite{illumina} For example, different types of cancer have been shown to have different RNA profiles.\cite{quickstart} \\
+Several different ways have been developed to deterine the RNA expression levels of all genes in the genome, called genome-wide expression analysis such as hybridization, microarray assays, RNA-Seq etc. \cite{quickstart} The data used in for this paper was collected using RNA-Seq. 
 \section{RNA-Seq}
-
+RNA-Seq delivers a high-resolution, base-by-base view of coding and noncoding RNA activity, providing a comprehensive picture of gene expression across the full transcriptome (sum total of all mRNA expressed) at a specific moment in time.\\
 \section{The Data}
-The data was taken from the Genotype-Tissue Expression (GTEx) database. The data consits of genome-wide profiles of 2921 cells and perturbations.\\
+The RNA-Seq data was taken from the Genotype-Tissue Expression (GTEx) database. The data consits of genome-wide profiles of 2921 cells and perturbations.\\
 
 \section{Autoencoders}
-An autoencoder neural network is an unsupervised learning algorithm that applies backpropagation, setting the target values to be equal to the inputs. In other words, it tries to learn an approximation to the identity function. The identity function seems a particularly trivial function to be trying to learn; but by placing constraints on the network, such as by limiting the number of hidden units, we can discover interesting structure about the data. If we impose a "sparsity" constraint on the hidden units, then the autoencoder will still discover interesting strucutre in the data, even if the number of hidden units is large.\\
+An autoencoder neural network is an unsupervised learning algorithm that applies backpropagation, setting the target values to be equal to the inputs. In other words, it tries to learn an approximation to the identity function. The identity function seems a particularly trivial function to be trying to learn; but by placing constraints on the network, such as by limiting the number of hidden units, we can discover interesting structure about the data. If we impose a ``sparsity" constraint on the hidden units, then the autoencoder will still discover interesting strucutre in the data, even if the number of hidden units is large.\cite{stanford}\\
 
 Let,
 \begin{equation}
 \hat{\rho}_j = \frac{1}{m} \sum_{i=1}^m [a^{(2)}_j(x^{(i)}) ]\\
 \end{equation}
-be the average activation of hidden unit $j$ (averaged over the training set). We would like to (approximately) enforce the constraint
+be the average activation of hidden unit $j$ (averaged over the training set). $m$ is the total number of units in the network. $a^{(2)}_j(x)$ is the activation of hidden unit $j$ on input x. We would like to (approximately) enforce the constraint
 \begin{equation}
 \hat{\rho} = \rho,
 \end{equation}
-where $\rho$ is a "sparsity parameter", typically a small value close to zero (say $\rho = 0.05$). In other words, we would like the average activation of each hidden neuron $j$ to be close to 0.05 (say). To satisfy this constraint, the hidden unit's activations must mostly be near 0.\\
+where $\rho$ is a ``sparsity parameter", typically a small value close to zero (say $\rho = 0.05$). In other words, we would like the average activation of each hidden neuron $j$ to be close to 0.05 (say). To satisfy this constraint, the hidden unit's activations must mostly be near 0.\\
 To achieve this, we will add an extra penalty term to our optimization objective that penalizes $\hat{\rho}_j$ deviating significantly from $\rho$. Many choices of the penalty term will give reasonable results. We will choose the following:\\
 
 \begin{equation}
