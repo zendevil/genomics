@@ -87,8 +87,13 @@ for i in range(3,4):
 
     # for r in range(10,11): # noise factor
     #     noise_factor = r * 0.1
-
+    MSE.append(calc_mse_all_sample_sizes(autoencoder, x_train, 0  ))
+    MSE.append(calc_mse_all_sample_sizes(autoencoder, x_train, 0.2))
+    MSE.append(calc_mse_all_sample_sizes(autoencoder, x_train, 0.4))
+    MSE.append(calc_mse_all_sample_sizes(autoencoder, x_train, 0.6))
+    MSE.append(calc_mse_all_sample_sizes(autoencoder, x_train, 0.8))
     MSE.append(calc_mse_all_sample_sizes(autoencoder, x_train, 1.0))
+    MSE.append(calc_mse_all_sample_sizes(autoencoder, x_train, 1.2))
     MSE.append(calc_mse_all_sample_sizes(autoencoder, x_train, 2.0))
     MSE.append(calc_mse_all_sample_sizes(autoencoder, x_train, 3.0))
     MSE.append(calc_mse_all_sample_sizes(autoencoder, x_train, 10.0))
